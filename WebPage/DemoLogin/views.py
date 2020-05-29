@@ -7,7 +7,6 @@ import urllib, json, sys
 # Create your views here.
 
 #url = 'https://f3uvc5cpdd.execute-api.us-east-1.amazonaws.com/prod/authenticate'
-url = 'https://fnrryosh20.execute-api.us-east-1.amazonaws.com/Prod/registrarse'
 headers = {'Content-type': 'application/json'}
 
 
@@ -81,27 +80,36 @@ def login(request):
     return render(request, 'demologin/login.html', {})
 
 def register(request):
-    nickname = request.GET.get('nickname')
-    password = request.GET.get('password')
-    email = request.GET.get('email')
-    name = request.GET.get('name')
-    family_name = request.GET.get('family_name')
+    
     #print(nickname)
     #print(password)
     #print(email)
     #print(name)
     #print(family_name)
     #print(request.GET)
-    if request.method == 'GET':
+    if request.method == 'POST':
+        nickname = request.POST.get('nickname')
+        password = request.POST.get('password')
+        email = request.POST.get('email')
+        name = request.POST.get('name')
+        family_name = request.POST.get('family_name')
+        url = 'https://fnrryosh20.execute-api.us-east-1.amazonaws.com/Prod/registrarse'
         response = requests.post(url, json={'username': nickname, 'password': password, 'name': name, 'email': email, 'family_name': family_name}, headers=headers)
         print(nickname)
         print(password)
         print(email)
         print(name)
         print(family_name)
-        print(response.status_code)
-        
-
+        json_data = json.dumps(response.json())
+        data = json.loads(json_data)
+        #print(data)
+        if data['error'] == True:
+            msj = data['message']
+            print(msj)    
+        elif data['success'] == True:
+            msj = data['message']
+            print(msj)
+    
     return render(request, 'demologin/register.html', {})
 
 @login_required
