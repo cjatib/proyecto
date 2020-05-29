@@ -27,19 +27,20 @@ def login(request):
         print(password)
         #print('IMPRIMIR RESPONSE')
         #print(response.json())
-        print('Estado del codigo : ')
+        #print('Estado del codigo : ')
         #print(response.status_code)
         #print(response.json())
         json_data = json.dumps(response.json())
         data = json.loads(json_data)
         #print(data)
-        token = data['data']['id_token']
-        print('Imprimir Token: 1')    
-        print(token)
-        print(response.ok)
-        #if response.ok and token != None:
+        #print(data['message'])
+        if data['success'] == True:
             #response = response(headers={'Authorization': token},is_redirect=True,url="https://0q3wzpyww4.execute-api.us-east-1.amazonaws.com/prod/ping")
-            #url1 = 'https://0q3wzpyww4.execute-api.us-east-1.amazonaws.com/prod/ping'
+            token = data['data']['id_token']
+            print('Imprimir Token desde success')    
+            print(token)
+            url_to = 'https://www.google.com'
+            print(data['message'])
             #header = {'Authorization': '{}'.format(token)}
             #headers1 = {"Authorization": token}
             #print('Imprimir Header 2')
@@ -70,9 +71,10 @@ def login(request):
             #context = { 'url' : 'https://0q3wzpyww4.execute-api.us-east-1.amazonaws.com/prod/ping',
             #    'Authorization' : token
             #}
-            #return HttpResponse(content=context)
-        #else:
-        #    return render(request, 'demologin/login.html', {})
+            return HttpResponseRedirect(url_to)
+        elif data['error'] == True:
+            print(data['message'])
+            return render(request, 'demologin/login.html', {})
     
     #if response.status_code == 200:
     #    redirect('demologin/home.html')
