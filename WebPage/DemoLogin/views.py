@@ -98,7 +98,7 @@ def login(request):
             #r = requests.head(url, allow_redirects=True)
 
             return redirect(r)       
-        #elif data['error'] == True:
+        elif data['error'] == True:
             #print(data['message'])
             return render(request, 'demologin/login.html', {})
     
