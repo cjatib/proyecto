@@ -3,13 +3,12 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 import requests
 import urllib, json, sys
+import http.client
+
 
 # Create your views here.
 
 #url = 'https://f3uvc5cpdd.execute-api.us-east-1.amazonaws.com/prod/authenticate'
-headers = {'Content-type': 'application/json'}
-
-
 
 def index(request):
     return render(request, 'demologin/index.html', {})
@@ -22,6 +21,7 @@ def login(request):
         #name = request.GET.get('name')
         #family_name = request.GET.get('family_name')
         url1="https://fnrryosh20.execute-api.us-east-1.amazonaws.com/Prod/login"
+        headers = {'Content-type': 'application/json'}
         response = requests.post(url1, json={'username': nickname, 'password': password}, headers=headers)
         print(nickname)
         print(password)
@@ -36,11 +36,11 @@ def login(request):
         #print(data['message'])
         if data['success'] == True:
             #response = response(headers={'Authorization': token},is_redirect=True,url="https://0q3wzpyww4.execute-api.us-east-1.amazonaws.com/prod/ping")
-            token = data['data']['id_token']
+            token = data['data']['access_token']
             print('Imprimir Token desde success')    
             print(token)
-            url_to = 'https://www.google.com'
-            print(data['message'])
+            #url_to = 'https://www.google.com'
+            #print(data['message'])
             #header = {'Authorization': '{}'.format(token)}
             #headers1 = {"Authorization": token}
             #print('Imprimir Header 2')
@@ -71,9 +71,35 @@ def login(request):
             #context = { 'url' : 'https://0q3wzpyww4.execute-api.us-east-1.amazonaws.com/prod/ping',
             #    'Authorization' : token
             #}
-            return HttpResponseRedirect(url_to)
-        elif data['error'] == True:
-            print(data['message'])
+            url = "https://38bg3rzr34.execute-api.us-east-1.amazonaws.com/prod/pets2"
+            conn = http.client.HTTPSConnection("38bg3rzr34.execute-api.us-east-1.amazonaws.com")
+            headers = {
+                        'content-type': "application/json",
+                        'authorization': "Bearer " + token
+                    }
+
+            conn.request("GET", "/prod/pets", headers=headers)
+            #print(conn.request)
+            res = conn.getresponse()
+            print('PRINT RES')
+            print(res)
+            data = res.read()
+            r = url + '#' + token
+            print('PRINT DATA')
+            print(data)
+            #request.redirect_to(url, headers=headers)
+            #response = request.HttpResponseRedirect(url, headers=headers)
+            #response['test headers'] = headers
+            #del response['headers']
+            #response['headers'] = headers
+            #response = requests.get(url,headers=headers, allow_redirects=True)
+            #print(response.url)
+            #print(response.headers)
+            #r = requests.head(url, allow_redirects=True)
+
+            return redirect(r)       
+        #elif data['error'] == True:
+            #print(data['message'])
             return render(request, 'demologin/login.html', {})
     
     #if response.status_code == 200:
@@ -96,6 +122,7 @@ def register(request):
         name = request.POST.get('name')
         family_name = request.POST.get('family_name')
         url = 'https://fnrryosh20.execute-api.us-east-1.amazonaws.com/Prod/registrarse'
+        headers = {'Content-type': 'application/json'}
         response = requests.post(url, json={'username': nickname, 'password': password, 'name': name, 'email': email, 'family_name': family_name}, headers=headers)
         print(nickname)
         print(password)
