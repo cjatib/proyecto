@@ -4,38 +4,39 @@ from django.http import HttpResponse, HttpResponseRedirect
 import requests
 import urllib, json, sys
 import http.client
-from .create_user import lambda_handler as registro_user
-from .login_user import lambda_handler as login_usuario
+
 
 # Create your views here.
+
+#url = 'https://f3uvc5cpdd.execute-api.us-east-1.amazonaws.com/prod/authenticate'
+
 def index(request):
     return render(request, 'demologin/index.html', {})
 
 def login(request):
     if request.method == 'POST':
-        username = request.POST.get('nickname')
+        nickname = request.POST.get('nickname')
         password = request.POST.get('password')
         #email = request.GET.get('email')
         #name = request.GET.get('name')
         #family_name = request.GET.get('family_name')
-        #url1="https://fnrryosh20.execute-api.us-east-1.amazonaws.com/Prod/login"
-        #headers = {'Content-type': 'application/json'}
-        #response = requests.post(url1, json={'username': username, 'password': password}, headers=headers)
-        #print(username)
-        #print(password)
+        url1="https://fnrryosh20.execute-api.us-east-1.amazonaws.com/Prod/login"
+        headers = {'Content-type': 'application/json'}
+        response = requests.post(url1, json={'username': nickname, 'password': password}, headers=headers)
+        print(nickname)
+        print(password)
         #print('IMPRIMIR RESPONSE')
         #print(response.json())
         #print('Estado del codigo : ')
         #print(response.status_code)
         #print(response.json())
-        #data = json.dumps(response.json())
-        json_data = login_usuario(username,password)
-        #json_data = json.loads(data)
-        print(json_data)
+        json_data = json.dumps(response.json())
+        data = json.loads(json_data)
+        #print(data)
         #print(data['message'])
-        if json_data['success'] == True:
+        if data['success'] == True:
             #response = response(headers={'Authorization': token},is_redirect=True,url="https://0q3wzpyww4.execute-api.us-east-1.amazonaws.com/prod/ping")
-            token = json_data['data']['access_token']
+            token = data['data']['access_token']
             print('Imprimir Token desde success')    
             print(token)
             #url_to = 'https://www.google.com'
@@ -71,21 +72,21 @@ def login(request):
             #    'Authorization' : token
             #}
             url = "https://38bg3rzr34.execute-api.us-east-1.amazonaws.com/prod/pets2"
-            #conn = http.client.HTTPSConnection("38bg3rzr34.execute-api.us-east-1.amazonaws.com")
-            #headers = {
-            #            'content-type': "application/json",
-            #            'authorization': "Bearer " + token
-            #        }
+            conn = http.client.HTTPSConnection("38bg3rzr34.execute-api.us-east-1.amazonaws.com")
+            headers = {
+                        'content-type': "application/json",
+                        'authorization': "Bearer " + token
+                    }
 
-            #conn.request("GET", "/prod/pets", headers=headers)
+            conn.request("GET", "/prod/pets", headers=headers)
             #print(conn.request)
-            #res = conn.getresponse()
-            #print('PRINT RES')
-            #print(res)
-            #data = res.read()
+            res = conn.getresponse()
+            print('PRINT RES')
+            print(res)
+            data = res.read()
             r = url + '#' + token
-            #print('PRINT DATA')
-            #print(data)
+            print('PRINT DATA')
+            print(data)
             #request.redirect_to(url, headers=headers)
             #response = request.HttpResponseRedirect(url, headers=headers)
             #response['test headers'] = headers
@@ -97,8 +98,8 @@ def login(request):
             #r = requests.head(url, allow_redirects=True)
 
             return redirect(r)       
-        elif json_data['error'] == True:
-            print(json_data['message'])
+        elif data['error'] == True:
+            #print(data['message'])
             return render(request, 'demologin/login.html', {})
     
     #if response.status_code == 200:
@@ -115,32 +116,28 @@ def register(request):
     #print(family_name)
     #print(request.GET)
     if request.method == 'POST':
-        username = request.POST.get('nickname')
+        nickname = request.POST.get('nickname')
         password = request.POST.get('password')
         email = request.POST.get('email')
         name = request.POST.get('name')
         family_name = request.POST.get('family_name')
-        #lambda_handler(username,password,email,name,family_name)
-        #url = 'https://fnrryosh20.execute-api.us-east-1.amazonaws.com/Prod/registrarse'
-        #headers = {'Content-type': 'application/json'}
-        #response = requests.post(url, json={'username': nickname, 'password': password, 'name': name, 'email': email, 'family_name': family_name}, headers=headers)
-        #print(nickname)
-        #print(password)
-        #print(email)
-        #print(name)
-        #print(family_name)
-        json_data = registro_user(username,password,email,name,family_name)
-        
-        print(json_data)
-        
-        if json_data['error'] == True:
-            msj = json_data['message']
+        url = 'https://fnrryosh20.execute-api.us-east-1.amazonaws.com/Prod/registrarse'
+        headers = {'Content-type': 'application/json'}
+        response = requests.post(url, json={'username': nickname, 'password': password, 'name': name, 'email': email, 'family_name': family_name}, headers=headers)
+        print(nickname)
+        print(password)
+        print(email)
+        print(name)
+        print(family_name)
+        json_data = json.dumps(response.json())
+        data = json.loads(json_data)
+        #print(data)
+        if data['error'] == True:
+            msj = data['message']
+            print(msj)    
+        elif data['success'] == True:
+            msj = data['message']
             print(msj)
-            return redirect('register')    
-        elif json_data['success'] == True:
-            msj = json_data['message']
-            print(msj)
-            return redirect('login')
     
     return render(request, 'demologin/register.html', {})
 
